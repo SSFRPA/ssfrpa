@@ -199,19 +199,19 @@ async function init_env() {
         urls.push("https://vscode.download.prss.microsoft.com/dbazure/download/stable/e170252f762678dec6ca2cc69aba1570769a5d39/VSCodeUserSetup-x64-1.88.1.exe")
     }
 
-    if (await sha_file("./temp/vs_deno_config.zip") != "ede10c55bfdd21c64471e8278b978c98ab697337f0ac51795c6e9180e6b6cd9a") {
-        urls.push("https://download.nuaa.cf/SSFRPA/ssf/releases/download/example/vs_deno_config.zip")
+    // if (await sha_file("./temp/vs_deno_config.zip") != "ede10c55bfdd21c64471e8278b978c98ab697337f0ac51795c6e9180e6b6cd9a") {
+    //     urls.push("https://download.nuaa.cf/SSFRPA/ssf/releases/download/example/vs_deno_config.zip")
 
-    }
+    // }
     if (urls.length > 0) {
         await ssf.Request.download(urls, "./temp", 1, 5, "")
     }
 
 
-    if (!existsSync('./.vscode')) {
-        await decompress("./temp/vs_deno_config.zip", "./")
+    // if (!existsSync('./.vscode')) {
+    //     await decompress("./temp/vs_deno_config.zip", "./")
 
-    }
+    // }
     await check_init_tts_model()
 }
 
