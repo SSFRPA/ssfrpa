@@ -81,8 +81,11 @@ function set_result(base64_str) {
     document.getElementById("row_content").innerHTML = utf8_str;
 }
 
-function validateXPath(xPath) {
-  console.log("验证 XPath:", xPath);
+function validateXPath(hwnd,xPath) {
+  //alert('1234')
+  validate(hwnd,xPath)
+  console.log(validate)
+  //console.log("验证 XPath:", xPath);
   // 可以添加验证 XPath 的逻辑
 }
 
@@ -111,7 +114,22 @@ function copyXPath(hwnd,xPath) {
 
 
 
-async function run(e: WebUI.Event) {
+async function validate(e: WebUI.Event) {
+  // console.log(123456)
+  const hwnd = e.arg.number(0);
+  const xapth = e.arg.string(1);
+  try {
+    // ssf.Windows.show_window(hwnd,ssf.enums.CmdShow.SW_SHOW)
+    ssf.Windows.set_foreground_window(hwnd)
+    ssf.Windows.switch_to_this_window(hwnd)
+    ssf.ElementExt.parse(hwnd, "/", 2000).try_focus()
+    ssf.Sys.sleep(200)
+    ssf.ElementExt.parse(hwnd, xapth, 3000).click()
+  } catch (error) {
+    console.log(error)
+  }
+
+
   return "";
 }
 
@@ -119,107 +137,88 @@ async function run(e: WebUI.Event) {
 const myWindow = new WebUI();
 myWindow.setSize(800, 800);
 // // 绑定事件
-myWindow.bind("run", run);
+myWindow.bind("validate", validate);
 myWindow.bind("exit", () => {
   console.log("退出")
 
   WebUI.exit();
 });
-// myWindow.bind("set_tts", set_tts);
 
-
-// myWindow.bind("exit", () => {
-//     WebUI.exit();
-// });
-// console.log("2222")
 
 await myWindow.show(myHtml);
 
-// // const path = vscodePath.replaceAll("\\", "\\\\")
-// if (vscodePath == "未找到") {
-//     const disks = ssf.Sys.disk_info();
-//     //如果有D盘存在则安装在D盘
-//     if (disks.length > 1) {
-//         default_vscodePath = "d:\\Programs\\Microsoft VS Code\\"
-//     }
-//     myWindow.run(String.raw`set_setup_path('${default_vscodePath.replaceAll("\\", "\\\\")}');`);
 
-
-// } else {
-//     myWindow.run(String.raw`set_vscode_path('${vscodePath.replaceAll("\\", "\\\\")}');`);
-
-// }
 ssf.ElementExt.listen();
 
-while (true) {
-  const infos = ssf.ElementExt.get_path(300);
-  // console.clear()
-  let innerhtml = ""
-  infos.forEach(element => {
-    // console.log("捕获方式", element.catch_type)
 
-    // console.log(element.title, element)
-    // console.log(element.xpath)
-    /**  
-     *
-                    <p><strong>automation_id:</strong> ${element.automation_id}</p>
-                    */
-    innerhtml += `
-    <div class="col-md-4">
-            <div class="capture-card">
-                <div class="capture-title">捕获方式：${element.catch_type}</div>
-                <div class="capture-content">
-                <p><strong>主窗体标题:</strong>${element.main_title}</p>
-                <p><strong>主窗体句柄:</strong>${element.main_hwnd}</p>
-                <p><strong>主窗体类名:</strong>${element.main_class_name}</p> 
-                    <p><strong>进程ID:</strong> ${element.pid}</p>
-                    <p><strong>应用路径:</strong> ${element.app_path}</p>
-                    
-                    <p><strong>类名:</strong> ${element.class_name}</p>
-                    <p><strong>标题:</strong> ${element.title}</p>
-                    <p><strong>控件类型:</strong> ${element.control_type}</p>
-                    <p><strong>XPath:</strong> ${element.xpath}
-                    <button class="button" onclick="validateXPath('${element.xpath}')">验证</button>
-                    <button class="button copy" onclick="copyXPath('${element.main_hwnd}','${element.xpath}')">复制</button>
-                    </p>
-                </div>
-            </div>
-        </div>
-    `
 
-  });
-  // console.log(innerhtml)
 
-  const base64_str = encodeBase64(innerhtml); // "Zm9vYmFy"
-  // const base64_str=btoa(innerhtml)
-  myWindow.run(`set_result('${base64_str}');`);
-  // console.log(123213)
+function repeatTask() {
+  // 执行任务
+  // console.log("执行任务");
+
+
+
+  // console.log(123)
+  let infos: ssf.PathInfo[] = [];
+  try {
+    infos = ssf.ElementExt.get_path(10);
+
+  } catch (_) {
+    //
+  }
+  if (infos.length > 0) {
+    // console.clear()
+    let innerhtml = ""
+    infos.forEach(element => {
+      // console.log("捕获方式", element.catch_type)
+
+      // console.log(element.title, element)
+      // console.log(element.xpath)
+      /**  
+       *
+                      <p><strong>automation_id:</strong> ${element.automation_id}</p>
+                      */
+      innerhtml += `
+   <div class="col-md-4">
+           <div class="capture-card">
+               <div class="capture-title">捕获方式：${element.catch_type}</div>
+               <div class="capture-content">
+               <p><strong>主窗体标题:</strong>${element.main_title}</p>
+               <p><strong>主窗体句柄:</strong>${element.main_hwnd}</p>
+               <p><strong>主窗体类名:</strong>${element.main_class_name}</p> 
+                   <p><strong>进程ID:</strong> ${element.pid}</p>
+                   <p><strong>应用路径:</strong> ${element.app_path}</p>
+                   
+                   <p><strong>类名:</strong> ${element.class_name}</p>
+                   <p><strong>标题:</strong> ${element.title}</p>
+                   <p><strong>控件类型:</strong> ${element.control_type}</p>
+                   <p><strong>XPath:</strong> ${element.xpath}
+                   <button class="button" onclick="validateXPath('${element.main_hwnd}','${element.xpath}')">验证</button>
+                   <button class="button copy" onclick="copyXPath('${element.main_hwnd}','${element.xpath}')">复制</button>
+                   </p>
+               </div>
+           </div>
+       </div>
+   `
+
+    });
+
+
+    const base64_str = encodeBase64(innerhtml); // "Zm9vYmFy"
+
+    myWindow.run(`set_result('${base64_str}');`);
+    
+
+  }
+
+
 }
 
+const intervalId = setInterval(repeatTask, 10)
+
 await WebUI.wait();
+clearInterval(intervalId);
 
 console.log("结束")
 
-// ssf.ElementExt.listen();
-
-// while (true) {
-//   const infos = ssf.ElementExt.get_path(300);
-//   // console.clear()
-
-//   infos.forEach(element => {
-//     console.log("捕获方式",element.catch_type)
-
-//     console.log(element.title,element)
-//     console.log(element.xpath)
-
-// });
-
-
-
-// const hwnd = ssf.Windows.find_window("WeChatMainWndForPC", "微信");
-// const hwnd = ssf.Windows.find_window("", "微信");
-
-
-// console.log("解析xpath", ssf.ElementExt.parse(hwnd, info.xpath));
-// }
-// console.log(Deno.AtomicOperation)

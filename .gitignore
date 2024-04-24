@@ -2,3 +2,6 @@
 /temp
 /deno.exe
 /test.ts
+/test2.ts
+/ui_parse.exe
+/*.exe
