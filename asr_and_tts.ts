@@ -160,14 +160,14 @@ async function for_message(qq_ele: ssf.WinElement) {
             break
         }
 
-        let username_val = username.name()
-        if (containsEnglishCharacters(username_val)) {
+        const username_val = username.name()
+        // if (containsEnglishCharacters(username_val)) {
 
-            username_val = "英文昵称"
-        }
+        //     username_val = "英文昵称"
+        // }
 
         // console.log(username.name(), detail.name())
-        let content = username_val + "说:------"
+        let content = username_val + "------"
         for (const detail of details) {
 
 
