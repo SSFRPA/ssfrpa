@@ -63,12 +63,23 @@ const ui_html = `
             margin-bottom: 1rem; /* 适当间隔 */
         }
 
-        input[type="text"] {
-            flex: 1; /* 让输入框占据可用空间 */
+        input {
             padding: 0.5rem; /* 缩小输入框内边距 */
             font-size: 1rem;
             border: 1px solid #ccc;
             border-radius: 4px;
+        }
+
+        input#url-input {
+            flex: 3; /* 让输入框占据较大的比例 */
+        }
+
+        input#speed-input {
+            flex: 1; /* 让语速输入框占据较小的比例 */
+        }
+
+        input#speaker-input {
+            flex: 1; /* 让说话人ID输入框占据较小的比例 */
         }
 
         button {
@@ -119,6 +130,16 @@ const ui_html = `
             <input type="text" id="url-input" placeholder="输入网址..." value="https://book.qq.com/book-read/468914/1" />
             <button onclick="extractContent()">提取内容</button>
         </div>
+
+        <!-- 新增的输入区域 -->
+        <div class="input-area">
+            <label for="speed-input">语速：</label>
+            <input type="text" id="speed-input" placeholder="输入语速 (浮点数)" value="1.0" />
+
+            <label for="speaker-input">说话人ID：</label>
+            <input type="number" id="speaker-input" placeholder="0 - 160" min="0" max="160" value="66" />
+        </div>
+
         <div class="content">
             <textarea class="editable" id="editable-content" placeholder="提取的内容会在这里显示..."></textarea>
         </div>
@@ -127,41 +148,52 @@ const ui_html = `
             <button onclick="stopContent()">停止播放</button>
         </div>
     </div>
+
     <script>
-     function extractContent() {
-        const url = document.getElementById("url-input").value;
+        function extractContent() {
+            const url = document.getElementById("url-input").value;
 
-        if (url.trim() === "") {
-            alert("请输入网址！");
-            return;
+            if (url.trim() === "") {
+                alert("请输入网址！");
+                return;
+            }
+
+            get_result(url).then((response) => {
+                set_result(response);
+            });
         }
-       get_result(url).then((response) => {
-        // document.getElementById("editable-content").textContent=123
-      });
-    }
-    function set_result(base64_str) {
-        const decoded_binary = atob(base64_str);
-        const utf8_str = new TextDecoder().decode(
-          Uint8Array.from(decoded_binary, (char) => char.charCodeAt(0))
-        );
-      
-          document.getElementById("editable-content").value  = utf8_str;
-    }
 
-    function playContent(){
-        const text=document.getElementById("editable-content").value  
-        // alert(text)
-        play_tts(text)
+        function set_result(base64_str) {
+            const decoded_binary = atob(base64_str);
+            const utf8_str = new TextDecoder().decode(
+              Uint8Array.from(decoded_binary, (char) => char.charCodeAt(0))
+            );
 
-    }
+            document.getElementById("editable-content").value  = utf8_str;
+        }
 
-    function stopContent(){
-     stop_tts()
+        function playContent(){
+            const text = document.getElementById("editable-content").value;
+            const speed = parseFloat(document.getElementById("speed-input").value);
+            const speakerId = parseInt(document.getElementById("speaker-input").value, 10);
 
-    }
+            // if (isNaN(speed) ||是说话人ID低于0或大于160) {
+            //     alert("请确保语速和说话人ID输入正确！");
+            //     return;
+            // }
+
+            play_tts(text, speed, speakerId);
+        }
+
+        function stopContent(){
+            stop_tts();
+        }
     </script>
 </body>
 </html>
+
+
+
 `
 
 
@@ -293,8 +325,11 @@ async function get_result(e: WebUI.Event) {
 
 async function play_tts(e: WebUI.Event) {
     const content = e.arg.string(0);
+    const speed = e.arg.number(1);
+    const speaker = e.arg.number(2);
 
-    ssf.ai.TTS.play_text(content, 66, 1.0)
+
+    ssf.ai.TTS.play_text(content, speaker, speed)
 
     return ''
 
@@ -302,7 +337,7 @@ async function play_tts(e: WebUI.Event) {
 
 
 async function stop_tts(e: WebUI.Event) {
-    console.log("停止............")
+    // console.log("停止............")
     ssf.ai.TTS.stop()
 }
 
