@@ -215,8 +215,9 @@ async function init_env() {
 
     //将所需文件都下载下来 分别是vs插件 语音生成模型 以及vscode
     const urls = []
-    console.log(await sha_file("./temp/vits-zh-aishell3.zip") )
+    // console.log(await sha_file("./temp/vits-zh-aishell3.zip") )
     if (await sha_file("./temp/vits-zh-aishell3.zip") != "867ce973f37819447c67c27f4287fe892cda3832052e92e17ae7c6c13e1d20e6") {
+        console.log("未找到模型文件,将自动下载,文件大小200mb左右,大约需要1分钟")
         urls.push("https://hub.nuaa.cf/SSFRPA/ssfrpa/releases/download/models/vits-zh-aishell3.zip")
     }
 
@@ -342,6 +343,7 @@ async function stop_tts(e: WebUI.Event) {
 }
 
 
+await init_env()
 
 // 创建一个窗口
 const myWindow = new WebUI();
@@ -351,7 +353,6 @@ myWindow.bind("get_result", get_result);
 myWindow.bind("play_tts", play_tts);
 myWindow.bind("stop_tts", stop_tts);
 
-init_env()
 
 
 myWindow.bind("exit", () => {
