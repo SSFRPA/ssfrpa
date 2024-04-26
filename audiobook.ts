@@ -215,8 +215,8 @@ async function init_env() {
 
     //将所需文件都下载下来 分别是vs插件 语音生成模型 以及vscode
     const urls = []
-
-    if (await sha_file("./temp/vits-zh-aishell3.zip") != "ffcd234452345af05923853275744bf5d2d3c8ef71d55740e5a9c69e6651e258") {
+    console.log(await sha_file("./temp/vits-zh-aishell3.zip") )
+    if (await sha_file("./temp/vits-zh-aishell3.zip") != "867ce973f37819447c67c27f4287fe892cda3832052e92e17ae7c6c13e1d20e6") {
         urls.push("https://hub.nuaa.cf/SSFRPA/ssfrpa/releases/download/models/vits-zh-aishell3.zip")
     }
 
