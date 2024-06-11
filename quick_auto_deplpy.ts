@@ -61,7 +61,7 @@ async function init_env() {
     //将所需文件都下载下来 分别是vs插件 语音生成模型 以及vscode
     const urls = []
     if (await sha_file("./temp/vscode-deno.vsix") != "2023cabd73ebb1a3a70cba986ac88f19d73d66333f1e3b5f627b9366cf32fceb") {
-        urls.push("https://download.nuaa.cf/denoland/vscode_deno/releases/download/3.37.0/vscode-deno.vsix");
+        urls.push("https://github.com/denoland/vscode_deno/releases/download/3.37.0/vscode-deno.vsix");
 
     }
     // if (await sha_file("./temp/vits-zh-aishell3.zip") != "ffcd234452345af05923853275744bf5d2d3c8ef71d55740e5a9c69e6651e258" && is_tts) {
