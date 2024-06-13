@@ -218,7 +218,7 @@ async function init_env() {
     // console.log(await sha_file("./temp/vits-zh-aishell3.zip") )
     if (await sha_file("./temp/vits-zh-aishell3.zip") != "867ce973f37819447c67c27f4287fe892cda3832052e92e17ae7c6c13e1d20e6") {
         console.log("未找到模型文件,将自动下载,文件大小200mb左右,大约需要1分钟")
-        urls.push("https://hub.nuaa.cf/SSFRPA/ssfrpa/releases/download/models/vits-zh-aishell3.zip")
+        urls.push("https://github.com/SSFRPA/ssfrpa/releases/download/models/vits-zh-aishell3.zip")
     }
 
     if (urls.length > 0) {

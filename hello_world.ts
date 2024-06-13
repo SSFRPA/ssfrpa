@@ -1,0 +1,6 @@
+ssf.Windows.run("notepad.exe", [])
+const ele=ssf.ElementExt.find_task_bar("Notepad",3000)
+const hwnd=ele.native_window_handle()
+ele.try_focus()
+ssf.ElementExt.set_Ime(0,hwnd)
+ele.send_keys("这是测试的12345",10)

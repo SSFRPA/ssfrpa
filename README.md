@@ -36,6 +36,7 @@
   ui_parse.ts: 界面捕获，可以捕获windows上任意控件，也支持chrome浏览器等等<br>
   asr_and_tts.ts: 一个用语音播放qq最新消息的例子 <br>
   audiobook.ts: 语音电子书,可以选择100多个人的声音播放指定网页，网页使用正文提取过滤,你可以用来播放小说、新闻等等<br>
-
+  saolei.ts: 自动打开网页并开始自动扫雷 需要手动安装chrome crx插件<br>
+  hello_world.ts 入门例子,打开记事本输入<br>
 ####  这里是列表文本问题反馈
   可以加qq群702720745 反馈问题<br>

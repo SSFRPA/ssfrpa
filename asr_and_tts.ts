@@ -26,7 +26,7 @@ async function init_env() {
     const urls = []
 
     if (await sha_file("./temp/vits-zh-aishell3.zip") != "ffcd234452345af05923853275744bf5d2d3c8ef71d55740e5a9c69e6651e258") {
-        urls.push("https://hub.nuaa.cf/SSFRPA/ssfrpa/releases/download/models/vits-zh-aishell3.zip")
+        urls.push("https://github.com/SSFRPA/ssfrpa/releases/download/models/vits-zh-aishell3.zip")
     }
 
     if (urls.length > 0) {
