@@ -198,6 +198,7 @@ function find(img: ssf.Image) {
 }
 
 
+console.log("准备开始")
 
 ssf.Sys.listen_exit()
 
@@ -218,7 +219,7 @@ try {
 
 ssf.Sys.sleep(2000)
 // const chrome_app = find_task_bar("Chrome", 3000)
-const chrome_app = ssf.ElementExt.find_task_bar("Chrome",3000)
+const chrome_app = ssf.ElementExt.find_task_bar("Chrome", 3000)
 
 ssf.Windows.switch_to_this_window(chrome_app.native_window_handle())
 
@@ -227,13 +228,8 @@ ssf.Sys.sleep(1000)
 
 
 ssf.Browser.listen()
+// ssf.Sys.sleep(10000000)
 const tid = ssf.Browser.create_tab("https://www.saolei123.com/", 10000).id
-
-
-ssf.Browser.click(tid, '//*[@id="uid"]', 3000)
-ssf.Browser.setText(tid, '//*[@id="name"]', "测试一下", 3000)
-ssf.Input.key(ssf.enums.KeyCode.Return, ssf.enums.Direction.Click)
-ssf.Sys.sleep(200)
 
 const chrome_ele = ssf.ElementExt.parse(chrome_app.native_window_handle(), '/Document', 5000)
 ssf.Sys.sleep(2000)
@@ -313,8 +309,8 @@ img = ssf.Frame.to_image(20, 1000)
 board = find(img)
 const h = board.length;
 const w = board[0].length;
+console.log(w, h)
 // console.log("------------
-
 while (true) {
     // try {
     // ssf.Sys.sleep(250)
@@ -331,18 +327,23 @@ while (true) {
     if (face_info.state == 2) {
 
         console.log("触雷,所有重新");
+        // break
         ssf.Sys.sleep(1000)
+
         ssf.Input.move(face_info.pos.x + chrome_pos.x + face_info.pos.w / 2, face_info.pos.y + chrome_pos.y + face_info.pos.h / 2, ssf.enums.Coordinate.Abs)
         ssf.Input.button(ssf.enums.Button.Left, ssf.enums.Direction.Click)
+        ssf.Sys.sleep(1000)
 
         res = new Set();
+        img.close()
+        img = ssf.Frame.to_image(20, 1000)
 
         // is_first = true
-        continue
+        // continue
     }
 
     board = find(img)
-
+    // console.log(JSON.stringify(board))
 
     // 计算未点开的格子数量
     let nb = 0;
@@ -385,7 +386,7 @@ while (true) {
     }
 
     for (const element of res) {
-        // console.log(element, element[1], element[0])
+        // console.log("准备点击",element, element[1], element[0])
         const p = find_next_pos(element[1], element[0], new_rect.x, new_rect.y)
         ssf.Input.move(p.x, p.y, ssf.enums.Coordinate.Abs)
         ssf.Sys.sleep(10)
