@@ -35,6 +35,22 @@ if (!existsSync('./models/translate')) {
 
 
 }
+
+
+if (!existsSync('./models/sherpa-onnx-streaming-zipformer-bilingual-zh-en-2023-02-20')) {
+    console.log("找不到模型文件,将从github下载,如果您的网络不能翻墙,建议手动下载")
+    const urls = []
+    if (await sha_file("./temp/sherpa-onnx-streaming-zipformer-bilingual-zh-en-2023-02-20.zip") != "f05860f1403d591f96ee1a4eca13dbbd58b7f4eb5fa4c7b25dd5e8f9556672e2") {
+        urls.push("https://github.com/SSFRPA/ssfrpa/releases/download/asr_model/sherpa-onnx-streaming-zipformer-bilingual-zh-en-2023-02-20.zip");
+
+    }
+    if (urls.length > 0) {
+        await ssf.Request.download(urls, "./temp", 1, 5, "")
+    }
+    await decompress("./temp/sherpa-onnx-streaming-zipformer-bilingual-zh-en-2023-02-20.zip", "./models/");
+
+
+}
 //-----------------------结束判断
 
 
