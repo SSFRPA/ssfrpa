@@ -115,7 +115,7 @@ function parse_text(text) {
 }
 
 
-let mode = 0;
+let mode = -1;
 // let is_first = true
 function run_text(text) {
     switch (text) {
