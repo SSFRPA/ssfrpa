@@ -1,3 +1,11 @@
+import * as path from "https://deno.land/std@0.224.0/path/mod.ts";
+
+function getModuleDir(importMeta) {
+  return path.resolve(path.dirname(path.fromFileUrl(importMeta.url)));
+}
+
+const current_dir = getModuleDir(import.meta);
+
 
 function getBound(x, y) {
     let x1 = Math.max(x - 1, 0);
@@ -268,7 +276,7 @@ const target_base_imgs: ssf.Image[] = []
 const target_faceimgs: ssf.Image[] = []
 
 //存放基础雷的种类
-const base_dir = "./saolei_images/"
+const base_dir = current_dir+"./saolei_images/"
 let base_index = 0
 for await (const dirEntry of Deno.readDir(base_dir)) {
     const img = ssf.Image.load(base_dir + dirEntry.name)
@@ -284,7 +292,7 @@ for await (const dirEntry of Deno.readDir(base_dir)) {
 }
 
 //存放状态 表示正常 触雷 胜利
-const base_state_dir = "./saolei_state_images/"
+const base_state_dir = current_dir+"./saolei_state_images/"
 let face_index = 0
 for await (const dirEntry of Deno.readDir(base_state_dir)) {
     const img = ssf.Image.load(base_state_dir + dirEntry.name)
