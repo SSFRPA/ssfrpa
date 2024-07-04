@@ -1,0 +1,191 @@
+import { existsSync } from "https://deno.land/std@0.221.0/fs/mod.ts";
+import { join } from "https://deno.land/std@0.221.0/path/mod.ts";
+import { decompress } from "https://deno.land/x/zip@v1.2.5/mod.ts";
+import { crypto } from "https://deno.land/std@0.207.0/crypto/mod.ts";
+import { encodeHex } from "https://deno.land/std@0.207.0/encoding/hex.ts";
+
+
+
+//-----------------------判断是否需要下载模型
+async function sha_file(path) {
+    try {
+        const file = await Deno.open(path, { read: true });
+        const readableStream = file.readable;
+        const fileHashBuffer = await crypto.subtle.digest("SHA-256", readableStream);
+        const fileHash = encodeHex(fileHashBuffer);
+        return fileHash;
+    }
+    catch {
+
+        return ""
+    }
+
+}
+if (!existsSync('./models/translate')) {
+    console.log("找不到模型文件,将从github下载,如果您的网络不能翻墙,建议手动下载")
+    const urls = []
+    if (await sha_file("./temp/translate.zip") != "a3e3815002e7da57a093760a357c3f0f99c23eaa6ab0850921a8b1a25c8abdeb") {
+        urls.push("https://github.com/SSFRPA/ssfrpa/releases/download/translate/translate.zip");
+
+    }
+    if (urls.length > 0) {
+        await ssf.Request.download(urls, "./temp", 1, 5, "")
+    }
+    await decompress("./temp/translate.zip", "./models/");
+
+
+}
+
+
+if (!existsSync('./models/sherpa-onnx-streaming-zipformer-bilingual-zh-en-2023-02-20')) {
+    console.log("找不到模型文件,将从github下载,如果您的网络不能翻墙,建议手动下载")
+    const urls = []
+    if (await sha_file("./temp/sherpa-onnx-streaming-zipformer-bilingual-zh-en-2023-02-20.zip") != "f05860f1403d591f96ee1a4eca13dbbd58b7f4eb5fa4c7b25dd5e8f9556672e2") {
+        urls.push("https://github.com/SSFRPA/ssfrpa/releases/download/asr_model/sherpa-onnx-streaming-zipformer-bilingual-zh-en-2023-02-20.zip");
+
+    }
+    if (urls.length > 0) {
+        await ssf.Request.download(urls, "./temp", 1, 5, "")
+    }
+    await decompress("./temp/sherpa-onnx-streaming-zipformer-bilingual-zh-en-2023-02-20.zip", "./models/");
+
+
+}
+//-----------------------结束判断
+
+////---------------------------------------  简单的语音命令判断
+// 计算字符串相似度的函数
+function similarity(s, t) {
+    let n = s.length, m = t.length;
+    if (n === 0) return m;
+    if (m === 0) return n;
+    
+    let d = Array.from(Array(n + 1), () => Array(m + 1).fill(0));
+    
+    for (let i = 0; i <= n; i++) d[i][0] = i;
+    for (let j = 0; j <= m; j++) d[0][j] = j;
+    
+    for (let i = 1; i <= n; i++) {
+        for (let j = 1; j <= m; j++) {
+            let cost = s[i - 1] === t[j - 1] ? 0 : 1;
+            d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + cost);
+        }
+    }
+    return d[n][m];
+}
+
+function similarity2(s, t) {
+    let l = Math.max(s.length, t.length);
+    let d = similarity(s, t);
+    return (1 - d / l).toFixed(4);
+}
+
+function extractTextAndMode(input) {
+    const inputPattern = /^输入\s*(.*)/;
+    const translatePattern = /^翻译\s*(.*)/;
+
+    let match = input.match(inputPattern);
+    if (match) {
+        return { mode: "输入", text: match[1] };
+    }
+
+    match = input.match(translatePattern);
+    if (match) {
+        return { mode: "翻译", text: match[1] };
+    }
+
+    return null; // 如果不符合任何模式，返回null
+}
+
+const COMMAND_LIST = [
+    "开始输入",
+    "结束输入",
+    "快速删除",
+];
+
+const MODE_LIST = ["开始输入", "结束输入", "快速删除"];
+const MODE_START = 0;
+const MODE_END = 1;
+
+function parse_text(text) {
+    let resultIndex = -1;
+    let maxScore = 0;
+    COMMAND_LIST.forEach((command, index) => {
+        let score = similarity2(text, command);
+        if (score > maxScore && score > 0.6) {
+            resultIndex = index;
+            maxScore = score;
+        }
+    });
+    return { index: resultIndex, score: maxScore };
+}
+
+let mode = -1;
+
+function run_text(commandIndex) {
+    switch (commandIndex) {
+        case MODE_START:
+            mode = 0;
+            break;
+        case MODE_END:
+            mode = 1;
+            break;
+    }
+}
+
+
+// 识别翻译主要代码
+ssf.ai.ASR.listen_input("./models/sherpa-onnx-streaming-zipformer-bilingual-zh-en-2023-02-20", 2.4, 1.2, 10.0);
+ssf.ai.Translate.init_model("./models/translate/tokenizer-marian-base-zh2en.json", "./models/translate/tokenizer-marian-base-zh2en_des.json", "./models/translate/zh-en-model.safetensors");
+console.log("开始监听麦克风");
+ssf.ai.Device.init_audio()
+const voice1 = ssf.ai.Device.load_audio("./voice_files/1.wav")
+const voice2 = ssf.ai.Device.load_audio("./voice_files/2.mp3")
+
+
+while (true) {
+    const text = ssf.ai.ASR.get_result();
+    console.log(text);
+    const quick_text=extractTextAndMode(text);
+    if(quick_text){
+        ssf.ai.Device.audio_play(voice2)
+        console.log(quick_text.mode)
+        if(quick_text.text.length==0){
+            continue
+        }
+        if(quick_text.mode=="输入"){
+
+            ssf.Input.text(quick_text.text);
+
+        }else{
+
+            const tr_text = ssf.ai.Translate.parse(quick_text.text);
+            ssf.Input.text(tr_text);
+        }
+        continue
+    }
+
+    let model = parse_text(text);
+    
+
+    if (model.index !== -1) {
+        ssf.ai.Device.audio_play(voice2)
+
+        console.log("匹配到命令----->", MODE_LIST[model.index], "概率:", model.score);
+        run_text(model.index);
+        continue;
+    }
+
+    // console.log(mode);
+
+    if (mode === 0) {
+        ssf.ai.Device.audio_play(voice2)
+
+        const tr_text = ssf.ai.Translate.parse(text);
+        ssf.Input.text(tr_text);
+        continue;
+
+    }
+    ssf.ai.Device.audio_play(voice1)
+
+}
