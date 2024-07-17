@@ -4,6 +4,7 @@ import { decompress } from "https://deno.land/x/zip@v1.2.5/mod.ts";
 import { crypto } from "https://deno.land/std@0.207.0/crypto/mod.ts";
 import { encodeHex } from "https://deno.land/std@0.207.0/encoding/hex.ts";
 import * as path from "https://deno.land/std@0.224.0/path/mod.ts";
+import pinyin from "https://deno.land/x/pinyin@0.0.5/mod.ts"
 
 // import { existsSync } from "https://deno.land/std@0.221.0/fs/mod.ts";
 
@@ -355,25 +356,36 @@ function det_element(control_type, isshow = true) {
 
 
 // 计算字符串相似度的函数
-function similarity(s, t) {
-    let n = s.length, m = t.length;
-    if (n === 0) return m;
-    if (m === 0) return n;
+// function similarity(s, t) {
+//     let n = s.length, m = t.length;
+//     if (n === 0) return m;
+//     if (m === 0) return n;
 
-    let d = Array.from(Array(n + 1), () => Array(m + 1).fill(0));
+//     let d = Array.from(Array(n + 1), () => Array(m + 1).fill(0));
 
-    for (let i = 0; i <= n; i++) d[i][0] = i;
-    for (let j = 0; j <= m; j++) d[0][j] = j;
+//     for (let i = 0; i <= n; i++) d[i][0] = i;
+//     for (let j = 0; j <= m; j++) d[0][j] = j;
 
-    for (let i = 1; i <= n; i++) {
-        for (let j = 1; j <= m; j++) {
-            let cost = s[i - 1] === t[j - 1] ? 0 : 1;
-            d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + cost);
-        }
-    }
+//     for (let i = 1; i <= n; i++) {
+//         for (let j = 1; j <= m; j++) {
+//             let cost = s[i - 1] === t[j - 1] ? 0 : 1;
+//             d[i][j] = Math.min(
+//                 d[i - 1][j] + 1,      // 删除操作
+//                 d[i][j - 1] + 1,      // 插入操作
+//                 d[i - 1][j - 1] + cost  // 替换操作
+//             );
 
-    return d[n][m];
-}
+//             // 考虑字符交换操作（Damerau-Levenshtein 距离特有）
+//             if (i > 1 && j > 1 && s[i - 1] === t[j - 2] && s[i - 2] === t[j - 1]) {
+//                 d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + cost);
+//             }
+//         }
+//     }
+
+//     return d[n][m];
+// }
+
+
 function chineseToNumber(chinese) {
     const chineseNumbers = {
         "零": 0, "一": 1, "二": 2, "三": 3, "四": 4,
@@ -414,17 +426,46 @@ function similarity2(s, t) {
     return (1 - d / l).toFixed(4);
 }
 
+
+
+// function extractTextAndMode(input) {
+//     const patterns = [
+//         { mode: "输入", pattern: /.*输入\s*(.*)/ },
+//         { mode: "翻译", pattern: /.*翻译\s*(.*)/ },
+//         { mode: "搜索", pattern: /.*搜索\s*(.*)/ },
+//         { mode: "点击", pattern: /.*点击\s*(.*)/ },
+//         { mode: "回退", pattern: /.*回退\s*(.*)/ },
+//         { mode: "查找", pattern: /.*查找\s*(.*)/ },
+//     ];
+
+//     for (const { mode, pattern } of patterns) {
+//         const match = input.match(pattern);
+//         if (match) {
+//             return { mode, text: match[1] };
+//         }
+//     }
+
+//     return null; // 如果不符合任何模式，返回 null
+// }
+
+
+
+
+
+function convertToPinyin(text) {
+    // 使用 pinyin 库将中文转换为拼音数组，然后取首字母
+    const pinyinArray = pinyin(text, { style: pinyin.STYLE_NORMAL});
+    return pinyinArray.map(item => item[0]).join('');
+}
+
 function extractTextAndMode(input) {
     const patterns = [
-        { mode: "输入", pattern: /^输入\s*(.*)/ },
-        { mode: "翻译", pattern: /^翻译\s*(.*)/ },
-        { mode: "搜索", pattern: /^搜索\s*(.*)/ },
-        { mode: "点击", pattern: /^点击\s*(.*)/ },
-        { mode: "回退", pattern: /^回退\s*(.*)/ },
-        { mode: "查找", pattern: /^查找\s*(.*)/ },
-
-
-
+        { mode: "输入", pattern: /输入\s*(.*)/ },
+        { mode: "翻译", pattern: /翻译\s*(.*)/ },
+        { mode: "搜索", pattern: /搜索\s*(.*)/ },
+        { mode: "点击", pattern: /点击\s*(.*)/ },
+        { mode: "回退", pattern: /回退\s*(.*)/ },
+        { mode: "查找", pattern: /查找\s*(.*)/ },
     ];
 
     for (const { mode, pattern } of patterns) {
@@ -432,10 +473,24 @@ function extractTextAndMode(input) {
         if (match) {
             return { mode, text: match[1] };
         }
+
+        // 对于拼音模糊匹配
+        const pinyinInput = convertToPinyin(input);
+        const pinyinPattern = convertToPinyin(mode);
+        if (pinyinInput.includes(pinyinPattern)) {
+            // 找到模式文本在输入文本中的起始位置
+            const modeIndex = input.indexOf(mode);
+            if (modeIndex !== -1) {
+                // 截取模式文本之后的位置作为 text
+                const matchedText = input.substring(modeIndex + mode.length).trim();
+                return { mode, text: matchedText };
+            }
+        }
     }
 
-    return null; // 如果不符合任何模式，返回null
+    return null; // 如果不符合任何模式，返回 null
 }
+
 
 const COMMAND_LIST = [
     "开始输入",
@@ -481,19 +536,78 @@ const MODE_LIST = [
 // const MODE_START = 0;
 // const MODE_END = 1;
 
+// function parse_text(text) {
+//     let resultIndex = -1;
+//     let maxScore = 0;
+//     COMMAND_LIST.forEach((command, index) => {
+//         let score = similarity2(text, command);
+//         if (score > maxScore && score > 0.4) {
+//             resultIndex = index;
+//             maxScore = score;
+//         }
+//     });
+//     return { index: resultIndex, score: maxScore };
+// }
+
+
+// function convertToPinyin2(text) {
+//     // 使用 pinyin 库将中文转换为拼音数组，然后取首字母
+//     const pinyinArray = pinyin(text, { style: pinyin.STYLE_FIRST_LETTER });
+//     return pinyinArray.map(item => item[0]).join('');
+// }
+
 function parse_text(text) {
     let resultIndex = -1;
     let maxScore = 0;
+
+    const pinyinText = convertToPinyin(text);
+
     COMMAND_LIST.forEach((command, index) => {
-        let score = similarity2(text, command);
-        if (score > maxScore && score > 0.6) {
+        const pinyinCommand = convertToPinyin(command);
+        const score = similarity(pinyinText, pinyinCommand);
+
+        // 设定一个百分比阈值，根据实际需求调整
+        const threshold = 0.6; // 60% 相似度作为阈值
+        const commandLength = Math.max(pinyinText.length, pinyinCommand.length);
+        const normalizedScore = 1 - (score / commandLength);
+
+        if (normalizedScore > threshold && normalizedScore > maxScore) {
+            maxScore = normalizedScore;
             resultIndex = index;
-            maxScore = score;
         }
     });
+
     return { index: resultIndex, score: maxScore };
 }
 
+function similarity(s, t) {
+    let n = s.length, m = t.length;
+    if (n === 0) return m;
+    if (m === 0) return n;
+
+    let d = Array.from(Array(n + 1), () => Array(m + 1).fill(0));
+
+    for (let i = 0; i <= n; i++) d[i][0] = i;
+    for (let j = 0; j <= m; j++) d[0][j] = j;
+
+    for (let i = 1; i <= n; i++) {
+        for (let j = 1; j <= m; j++) {
+            let cost = s[i - 1] === t[j - 1] ? 0 : 1;
+            d[i][j] = Math.min(
+                d[i - 1][j] + 1,      // 删除操作
+                d[i][j - 1] + 1,      // 插入操作
+                d[i - 1][j - 1] + cost  // 替换操作
+            );
+
+            // 考虑字符交换操作（Damerau-Levenshtein 距离特有）
+            if (i > 1 && j > 1 && s[i - 1] === t[j - 2] && s[i - 2] === t[j - 1]) {
+                d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + cost);
+            }
+        }
+    }
+
+    return d[n][m];
+}
 let mode = -1;
 
 function kill_current() {
@@ -779,7 +893,7 @@ function search(text) {
 ssf.Browser.listen()
 
 // 识别翻译主要代码
-ssf.ai.ASR.listen_input("./models/sherpa-onnx-streaming-zipformer-bilingual-zh-en-2023-02-20", 50000.0, 1.2, 10.0);
+ssf.ai.ASR.listen_input("./models/sherpa-onnx-streaming-zipformer-bilingual-zh-en-2023-02-20", 3.6, 2.4, 10.0);
 ssf.ai.Translate.init_model("./models/translate/tokenizer-marian-base-zh2en.json", "./models/translate/tokenizer-marian-base-zh2en_des.json", "./models/translate/zh-en-model.safetensors");
 console.log("开始监听麦克风");
 ssf.ai.Device.init_audio()
@@ -811,8 +925,7 @@ while (true) {
             console.log("=====>", quick_text.mode);
             if (quick_text.text.length === 0) {
                 continue;
-            }
-            switch (quick_text.mode) {
+            }            switch (quick_text.mode) {
                 case "输入":
                     ssf.Input.text(quick_text.text);
                     break;
