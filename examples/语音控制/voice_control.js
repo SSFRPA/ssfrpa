@@ -893,7 +893,7 @@ function search(text) {
 ssf.Browser.listen()
 
 // 识别翻译主要代码
-ssf.ai.ASR.listen_input("./models/sherpa-onnx-streaming-zipformer-bilingual-zh-en-2023-02-20", 3.6, 2.4, 10.0);
+ssf.ai.ASR.listen_input("./models/sherpa-onnx-streaming-zipformer-bilingual-zh-en-2023-02-20", 3.6, 1.8, 10.0);
 ssf.ai.Translate.init_model("./models/translate/tokenizer-marian-base-zh2en.json", "./models/translate/tokenizer-marian-base-zh2en_des.json", "./models/translate/zh-en-model.safetensors");
 console.log("开始监听麦克风");
 ssf.ai.Device.init_audio()
