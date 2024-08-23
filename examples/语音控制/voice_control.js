@@ -343,7 +343,10 @@ function det_element(control_type, isshow = true) {
     });
     // console.log(JSON.stringify(det_data))
     if (isshow) {
+        // const pid = ssf.Windows.run("./ui_ext/ssf_ui.exe", [JSON.stringify(det_data)])
         const pid = ssf.Windows.run("./ui_ext/ssf_ui.exe", [JSON.stringify(det_data)])
+        console.log(pid)
+
         det_pid = pid;
     } else {
         det_pid = null;
@@ -454,7 +457,7 @@ function similarity2(s, t) {
 
 function convertToPinyin(text) {
     // 使用 pinyin 库将中文转换为拼音数组，然后取首字母
-    const pinyinArray = pinyin(text, { style: pinyin.STYLE_NORMAL});
+    const pinyinArray = pinyin(text, { style: pinyin.STYLE_NORMAL });
     return pinyinArray.map(item => item[0]).join('');
 }
 
@@ -720,7 +723,7 @@ function run_text(commandIndex) {
         case "点击当前位置":
             {
 
-                ssf.Input.key(ssf.enums.Button.Left, ssf.enums.Direction.Press)
+                ssf.Input.key(ssf.enums.Button.Left, ssf.enums.Direction.Click)
                 ssf.Sys.sleep(300)
 
 
@@ -757,14 +760,13 @@ function click_num(text) {
 
 function back_text(text) {
     const num = chineseToNumber(text)
-    for (let index = 1; index < num; index++) {
+    for (let index = 0; index < num; index++) {
         ssf.Input.key(ssf.enums.KeyCode.Backspace, ssf.enums.Direction.Click)
 
     }
 
 
 }
-
 
 
 
@@ -851,21 +853,38 @@ function find_text_pos(text, isshow = true) {
 //检测插件是否安装
 function search(text) {
     try {
-        const chrome_path = ssf.Windows.get_reg_value("\\HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\chrome.exe", "")
+        // const chrome_path = ssf.Windows.get_reg_value("\\HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\chrome.exe", "")
+        const browser_path = "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe"
+        // if (ssf.Windows.find_process("msedge.exe") == 0) {
+        //     ssf.Windows.run(browser_path, [])
+        // }
 
         //判断插件是否安装,后续直接可以google商店安装
+        // try {
+        //     const chrome_ext = ssf.Windows.get_reg_value("\\HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Google\\Chrome\\ExtensionInstallAllowlist", "99999")
+        //     if (ssf.Windows.find_process("chrome.exe") == 0) {
+        //         ssf.Windows.run(chrome_path, [])
+        //     }
+        // } catch (error) {
+        //     console.log("未允许插件,将自动注册插件,后续可以从google商店安装", error)
+        //     console.log(ssf.Windows.cmd("reg", ["add", "HKLM\\SOFTWARE\\Policies\\Google\\Chrome\\ExtensionInstallAllowlist", "/v", "99999", "/t", "reg_sz", "/d", "eamibgnfgfhlmnbedbegigiaiedokgjh", "/f"]))
+
+        // }
+        // console.log("??????")
+        let chrome_app = null
         try {
-            const chrome_ext = ssf.Windows.get_reg_value("\\HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Google\\Chrome\\ExtensionInstallAllowlist", "99999")
-            if (ssf.Windows.find_process("chrome.exe") == 0) {
-                ssf.Windows.run(chrome_path, [])
-            }
-        } catch (error) {
-            console.log("未允许插件,将自动注册插件,后续可以从google商店安装", error)
-            console.log(ssf.Windows.cmd("reg", ["add", "HKLM\\SOFTWARE\\Policies\\Google\\Chrome\\ExtensionInstallAllowlist", "/v", "99999", "/t", "reg_sz", "/d", "eamibgnfgfhlmnbedbegigiaiedokgjh", "/f"]))
+            chrome_app = ssf.ElementExt.find_task_bar("Edge", 1000)
+
+        } catch (_) {
+            //
+        }
+        // console.log("..............",chrome_app)
+        if (!chrome_app) {
+            ssf.Windows.run(browser_path, [])
+            ssf.Sys.sleep(1000)
+            chrome_app = ssf.ElementExt.find_task_bar("Edge", 1000)
 
         }
-
-        const chrome_app = ssf.ElementExt.find_task_bar("Chrome", 30000)
 
         ssf.Windows.switch_to_this_window(chrome_app.native_window_handle())
         ssf.Sys.sleep(1000)
@@ -902,8 +921,8 @@ ssf.ai.Device.init_audio()
 //   }
 // console.log(dir)
 
-const voice1 = ssf.ai.Device.load_audio(dir + "/voice_files/1.wav")
-const voice2 = ssf.ai.Device.load_audio(dir + "./voice_files/2.mp3")
+const voice1 = ssf.ai.Device.load_audio("./voice_files/1.wav")
+const voice2 = ssf.ai.Device.load_audio("./voice_files/2.mp3")
 
 let last_text = ""
 while (true) {
@@ -925,7 +944,7 @@ while (true) {
             console.log("=====>", quick_text.mode);
             if (quick_text.text.length === 0) {
                 continue;
-            }            switch (quick_text.mode) {
+            } switch (quick_text.mode) {
                 case "输入":
                     ssf.Input.text(quick_text.text);
                     break;
@@ -970,7 +989,7 @@ while (true) {
         if (mode === 0) {
             ssf.ai.Device.audio_play(voice2)
 
-            const tr_text = ssf.ai.Translate.parse(text);
+            // const tr_text = ssf.ai.Translate.parse(text);
             ssf.Input.text(tr_text);
             continue;
 

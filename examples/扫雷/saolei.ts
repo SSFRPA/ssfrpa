@@ -221,7 +221,7 @@ try {
     }
 } catch (error) {
     console.log("未允许插件,将自动注册插件,后续可以从google商店安装", error)
-    console.log(ssf.Windows.cmd("reg", ["add", "HKLM\\SOFTWARE\\Policies\\Google\\Chrome\\ExtensionInstallAllowlist", "/v", "99999", "/t", "reg_sz", "/d", "eamibgnfgfhlmnbedbegigiaiedokgjh", "/f"]))
+    console.log(ssf.Windows.cmd("reg", ["add", "HKLM\\SOFTWARE\\Policies\\Google\\Chrome\\ExtensionInstallAllowlist", "/v", "99999", "/t", "reg_sz", "/d", "nlpkochpdcicaiogdlbionoheneabnom", "/f"]))
 
 }
 

@@ -236,15 +236,15 @@ async function check_init_tts_model() {
     if (output_device_flag == -1) {
         if (ssf.ai.Device.check_default_output_device()) {
 
-            if (!existsSync('./models/vits-zh-aishell3')) {
+            if (!existsSync('./models/vits-melo-tts-zh_en')) {
                 console.log("找不到模型文件")
-                await decompress("./temp/vits-zh-aishell3.zip", "./models/");
+                await decompress("./temp/vits-melo-tts-zh_en.zip", "./models/");
                 output_device_flag = 1
-                ssf.ai.TTS.init_model("./models/vits-zh-aishell3");
+                ssf.ai.TTS.init_model("./models/vits-melo-tts-zh_en");
 
             } else {
                 output_device_flag = 1
-                ssf.ai.TTS.init_model("./models/vits-zh-aishell3");
+                ssf.ai.TTS.init_model("./models/vits-melo-tts-zh_en");
 
 
             }
@@ -330,7 +330,7 @@ async function play_tts(e: WebUI.Event) {
     const speaker = e.arg.number(2);
 
 
-    ssf.ai.TTS.play_text(content, speaker, speed)
+    ssf.ai.TTS.play_text(content.replaceAll("“","").replaceAll("”",""), speaker, speed)
 
     return ''
 

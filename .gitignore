@@ -23,3 +23,14 @@
 ui_ext/ssf_ui.exe
 save/1.json
 /save
+/test3.ts
+examples/语音控制/voice_control.exe
+*test*
+.gitignore
+model.nlp
+/classifier.json
+/asr_ext.ts
+/chat_ext.ts
+chat2.ts
+chat.ts
+/general-news-extractor-js
