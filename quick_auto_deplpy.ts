@@ -4,8 +4,7 @@ import { join } from "https://deno.land/std@0.221.0/path/mod.ts";
 import { decompress } from "https://deno.land/x/zip@v1.2.5/mod.ts";
 import { crypto } from "https://deno.land/std@0.207.0/crypto/mod.ts";
 import { encodeHex } from "https://deno.land/std@0.207.0/encoding/hex.ts";
-
-
+import { dirname, join } from "https://deno.land/std@0.167.0/path/mod.ts";
 
 async function sha_file(path: string): Promise<string> {
     try {
@@ -48,7 +47,7 @@ function vscode_setup() {
 }
 function vs_open(){
     const currentDirectory = Deno.cwd();
-
+    // const parentDirectory =dirname(currentDirectory);
     const pid = ssf.Windows.run(vscodePath + "\\Code.exe", [currentDirectory])
 
     // console.log(cmd_result)

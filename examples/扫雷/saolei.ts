@@ -211,29 +211,28 @@ console.log("准备开始")
 ssf.Sys.listen_exit()
 
 
-const chrome_path = ssf.Windows.get_reg_value("\\HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\chrome.exe", "")
-
-//判断插件是否安装,后续直接可以google商店安装
+const browser_path = "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe"
+       
+let chrome_app = null
 try {
-    const chrome_ext = ssf.Windows.get_reg_value("\\HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Google\\Chrome\\ExtensionInstallAllowlist", "99999")
-    if (ssf.Windows.find_process("chrome.exe") == 0) {
-        ssf.Windows.run(chrome_path, [])
-    }
-} catch (error) {
-    console.log("未允许插件,将自动注册插件,后续可以从google商店安装", error)
-    console.log(ssf.Windows.cmd("reg", ["add", "HKLM\\SOFTWARE\\Policies\\Google\\Chrome\\ExtensionInstallAllowlist", "/v", "99999", "/t", "reg_sz", "/d", "nlpkochpdcicaiogdlbionoheneabnom", "/f"]))
+    chrome_app = ssf.ElementExt.find_task_bar("Edge", 1000)
+
+} catch (_) {
+    //
+}
+// console.log("..............",chrome_app)
+if (!chrome_app) {
+    ssf.Windows.run(browser_path, [])
+    ssf.Sys.sleep(1000)
+    chrome_app = ssf.ElementExt.find_task_bar("Edge", 1000)
 
 }
-
-ssf.Sys.sleep(2000)
-// const chrome_app = find_task_bar("Chrome", 3000)
-const chrome_app = ssf.ElementExt.find_task_bar("Chrome", 3000)
 
 ssf.Windows.switch_to_this_window(chrome_app.native_window_handle())
 
 
 ssf.Sys.sleep(1000)
-
+ssf.Frame.init()
 
 ssf.Browser.listen()
 // ssf.Sys.sleep(10000000)

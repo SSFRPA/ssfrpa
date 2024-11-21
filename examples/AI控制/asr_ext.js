@@ -11,7 +11,7 @@ let seg_text = ""
 while (true) {
     try {
         let text = ssf.ai.ASR.get_result_with_timeout(100);
-
+        // console.log("...........",text)
         if (seg_text == "") {
             min_startTime = new Date();
             max_startTime = new Date();
@@ -46,6 +46,7 @@ while (true) {
             }
         }
     } catch (error) {
+        seg_text="";
         console.log(error)
     }
 

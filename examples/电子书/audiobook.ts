@@ -240,11 +240,11 @@ async function check_init_tts_model() {
                 console.log("找不到模型文件")
                 await decompress("./temp/vits-melo-tts-zh_en.zip", "./models/");
                 output_device_flag = 1
-                ssf.ai.TTS.init_model("./models/vits-melo-tts-zh_en");
+                ssf.ai.TTS.init_model("./models/vits-melo-tts-zh_en","melo");
 
             } else {
                 output_device_flag = 1
-                ssf.ai.TTS.init_model("./models/vits-melo-tts-zh_en");
+                ssf.ai.TTS.init_model("./models/vits-melo-tts-zh_en","melo");
 
 
             }
@@ -267,7 +267,7 @@ async function get_html(url: string): string {
         "Accept-Encoding": "gzip",
         "Accept-Language": "zh-CN,zh;q=0.9",
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-        "Content-Type": "application/json;charset=UTF-8",
+        // "Content-Type": "application/json;charset=UTF-8",
         "cookie":""
     };
 
@@ -279,7 +279,7 @@ async function get_html(url: string): string {
 
         "timeout": 3000,
         "header": header,
-        "encoding": "gb2312",
+        // "encoding": "gb2312",
     }
 
     ];
@@ -291,6 +291,7 @@ async function get_html(url: string): string {
 
         if (element.status_code == 200) {
             // const $ = cheerio.load(element.text);
+            // console.log(element.text)
             const gne = new GeneralNewsExtractor()
             const info=gne.extract(element.text, {})
             result_text=info.content

@@ -162,9 +162,10 @@ listener.addListener(function (e, down) {
 });
 
 
+
 let mode = 0;
 asr_ext_worker.onmessage = async (e) => {
-  console.log(e.data)
+  // console.log("??????????",e.data)
 
   const model = parse_text(e.data);
 

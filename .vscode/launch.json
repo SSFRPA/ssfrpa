@@ -10,7 +10,7 @@
             "type": "node",
             "program": "${workspaceFolder}/${file}",
             "cwd": "${workspaceFolder}",
-            "runtimeExecutable": "${workspaceFolder}/deno.exe",
+            "runtimeExecutable": "${workspaceFolder}/env/deno.exe",
             "runtimeArgs": [
                 "run",
                 "--unstable",
